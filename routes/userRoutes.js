@@ -1,17 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const { registerUser, loginUser, getUsers, updateUser, deleteUser } = require('../controllers/userC');
+const authMiddleware = require('../middleware/authMiddleware');
 
-router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username, password });
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+// Đăng ký người dùng
+router.post('/register', registerUser);
 
-    const token = `token_${Date.now()}`;
-    user.token = token;
-    await user.save();
+// Đăng nhập người dùng
+router.post('/login', loginUser);
 
-    res.json({ token, accessLevel: user.accessLevel });
-});
+// Lấy danh sách người dùng (cần quyền admin)
+router.get('/', authMiddleware('admin'), getUsers);
+
+// Cập nhật người dùng (cần quyền admin)
+router.put('/:id', authMiddleware('admin'), updateUser);
+
+// Xóa người dùng (cần quyền admin)
+router.delete('/:id', authMiddleware('admin'), deleteUser);
 
 module.exports = router;

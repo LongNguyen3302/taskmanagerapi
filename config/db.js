@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // MongoDB connection string
-const dbURI = 'mongodb+srv://longnguyen3302:longnguyen3302@cluster0.mharv.mongodb.net/taskmanager?retryWrites=true&w=majority&appName=Cluster0';
+const dbURI = 'mongodb+srv://36tranhungdao:ngyt2004@cluster0.lfnf5.mongodb.net/taskmanager?retryWrites=true&w=majority&appName=Cluster0\'';
 
 // Connect to MongoDB
 const connectDB = async () => {
