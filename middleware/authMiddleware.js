@@ -26,3 +26,33 @@ const authMiddleware = (requiredAccessLevel = 'read') => async (req, res, next) 
 };
 
 module.exports = authMiddleware;
+// Middleware to verify user access level without using token
+// const authMiddleware = (requiredAccessLevel = 'read') => (req, res, next) => {
+//     try {
+//         // Lấy thông tin quyền truy cập từ req.headers
+//         const accessLevel = req.headers['access-level']; // Hoặc từ req.body, req.query, tùy theo cách bạn muốn
+//
+//         if (!accessLevel) {
+//             return res.status(401).json({ message: 'Access level not provided, authorization denied' });
+//         }
+//
+//         // Kiểm tra quyền truy cập
+//         const validAccessLevels = ['read', 'write', 'admin'];
+//         if (!validAccessLevels.includes(accessLevel)) {
+//             return res.status(403).json({ message: 'Invalid access level' });
+//         }
+//
+//         if (accessLevel !== 'admin' && accessLevel !== requiredAccessLevel) {
+//             return res.status(403).json({ message: 'Access denied' });
+//         }
+//
+//         // Thêm thông tin quyền vào req để sử dụng tiếp trong các middleware khác (nếu cần)
+//         req.user = { accessLevel };
+//         next();
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
+//
+// module.exports = authMiddleware;

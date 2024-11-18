@@ -2,7 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 // Secret key cho JWT
-const JWT_SECRET = 'your_jwt_secret_key';
+// const JWT_SECRET = 'your_jwt_secret_key';
 
 // Đăng ký người dùng
 const registerUser = async (req, res) => {
@@ -55,14 +55,26 @@ const loginUser = async (req, res) => {
 
 // Lấy danh sách người dùng
 const getUsers = async (req, res) => {
+    const { username} = req.body; // Lấy thông tin từ request body
+
     try {
+        // Kiểm tra xem người dùng đã đăng nhập có quyền admin chưa
+        const adminUser = await User.findOne({ username });
+
+        if (!adminUser || adminUser.accessLevel !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. You must be an admin.' });
+        }
+
+        // Nếu người dùng là admin, trả về danh sách tất cả người dùng (ngoại trừ mật khẩu)
         const users = await User.find().select('-password'); // Không gửi mật khẩu về client
         res.json(users);
+
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 // Cập nhật thông tin người dùng
 const updateUser = async (req, res) => {
