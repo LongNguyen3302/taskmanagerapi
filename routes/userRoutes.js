@@ -10,8 +10,8 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 
 // Lấy danh sách người dùng (cần quyền admin)
-router.get('/usergetdata', getUsers);
-
+// router.get('/usergetdata', getUsers);
+router.get('/users', authMiddleware('admin'), getUsers);
 // Cập nhật người dùng (cần quyền admin)
 router.put('/:id', authMiddleware('admin'), updateUser);
 

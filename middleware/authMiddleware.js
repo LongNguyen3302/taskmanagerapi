@@ -2,8 +2,10 @@ const jwt = require('jsonwebtoken');
 
 // Middleware to verify the JWT token and user access level
 const authMiddleware = (requiredAccessLevel = 'read') => async (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];  // Get the token from the header
-
+    // console.log(req.headers);
+    // console.log(req.headers.authorization);
+    // const token = req.headers['authorization']?.split(' ')[1];  // Get the token from the header
+    const token = req.headers.authorization;
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied' });
     }
