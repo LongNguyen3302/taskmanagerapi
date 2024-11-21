@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // Middleware to verify the JWT token and user access level
 const authMiddleware = (requiredAccessLevel = 'read') => async (req, res, next) => {
@@ -13,6 +15,7 @@ const authMiddleware = (requiredAccessLevel = 'read') => async (req, res, next) 
     try {
         // Verify the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
 
         // Check user access level
         if (decoded.accessLevel !== 'admin' && decoded.accessLevel !== requiredAccessLevel) {
