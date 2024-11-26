@@ -1,6 +1,7 @@
 const Task = require('../models/Task');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const Project = require('../models/Project');
 
 dotenv.config();
 
@@ -21,7 +22,32 @@ const verifyAccess = (req, res, requiredAccessLevels) => {
         return { success: false, message: 'Invalid token', statusCode: 401 };
     }
 };
+// Check if user is a collaborator of the project
+const isCollaborator = async (userId, projectId) => {
+    const project = await Project.findById(projectId);
+    if (!project) return false;
 
+    return project.ownerId.toString() === userId || project.collaborators.includes(userId);
+};
+
+// // Create a new task
+// const createTask = async (req, res) => {
+//     const { title, description, dueDate, projectId } = req.body;
+//
+//     const authResult = verifyAccess(req, res, ['read']);
+//     if (!authResult.success) {
+//         return res.status(authResult.statusCode).json({ message: authResult.message });
+//     }
+//
+//     try {
+//         const newTask = new Task({ title, description, dueDate, projectId });
+//         await newTask.save();
+//         res.status(201).json({ message: 'Task created successfully', task: newTask });
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
 // Create a new task
 const createTask = async (req, res) => {
     const { title, description, dueDate, projectId } = req.body;
@@ -31,7 +57,14 @@ const createTask = async (req, res) => {
         return res.status(authResult.statusCode).json({ message: authResult.message });
     }
 
+    const userId = authResult.user.id;
+
     try {
+        const hasAccess = await isCollaborator(userId, projectId);
+        if (!hasAccess) {
+            return res.status(403).json({ message: 'You are not a collaborator of this project' });
+        }
+
         const newTask = new Task({ title, description, dueDate, projectId });
         await newTask.save();
         res.status(201).json({ message: 'Task created successfully', task: newTask });
@@ -57,6 +90,34 @@ const getTasks = async (req, res) => {
     }
 };
 
+// // Update a task
+// const updateTask = async (req, res) => {
+//     const { id } = req.params;
+//     const { title, description, dueDate, status } = req.body;
+//
+//     const authResult = verifyAccess(req, res, ['read']);
+//     if (!authResult.success) {
+//         return res.status(authResult.statusCode).json({ message: authResult.message });
+//     }
+//
+//     try {
+//         const task = await Task.findById(id);
+//         if (!task) {
+//             return res.status(404).json({ message: 'Task not found' });
+//         }
+//
+//         if (title) task.title = title;
+//         if (description) task.description = description;
+//         if (dueDate) task.dueDate = dueDate;
+//         if (status) task.status = status;
+//
+//         await task.save();
+//         res.json({ message: 'Task updated successfully', task });
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
 // Update a task
 const updateTask = async (req, res) => {
     const { id } = req.params;
@@ -67,10 +128,17 @@ const updateTask = async (req, res) => {
         return res.status(authResult.statusCode).json({ message: authResult.message });
     }
 
+    const userId = authResult.user.id;
+
     try {
         const task = await Task.findById(id);
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
+        }
+
+        const hasAccess = await isCollaborator(userId, task.projectId);
+        if (!hasAccess) {
+            return res.status(403).json({ message: 'You are not a collaborator of this project' });
         }
 
         if (title) task.title = title;
@@ -86,6 +154,27 @@ const updateTask = async (req, res) => {
     }
 };
 
+// // Delete a task
+// const deleteTask = async (req, res) => {
+//     const { id } = req.params;
+//
+//     const authResult = verifyAccess(req, res, ['read']);
+//     if (!authResult.success) {
+//         return res.status(authResult.statusCode).json({ message: authResult.message });
+//     }
+//
+//     try {
+//         const task = await Task.findByIdAndDelete(id);
+//         if (!task) {
+//             return res.status(404).json({ message: 'Task not found' });
+//         }
+//
+//         res.json({ message: 'Task deleted successfully' });
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
 // Delete a task
 const deleteTask = async (req, res) => {
     const { id } = req.params;
@@ -95,19 +184,26 @@ const deleteTask = async (req, res) => {
         return res.status(authResult.statusCode).json({ message: authResult.message });
     }
 
+    const userId = authResult.user.id;
+
     try {
-        const task = await Task.findByIdAndDelete(id);
+        const task = await Task.findById(id);
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }
 
+        const hasAccess = await isCollaborator(userId, task.projectId);
+        if (!hasAccess) {
+            return res.status(403).json({ message: 'You are not a collaborator of this project' });
+        }
+
+        await task.remove();
         res.json({ message: 'Task deleted successfully' });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: 'Server error' });
     }
 };
-
 module.exports = {
     createTask,
     getTasks,
