@@ -99,42 +99,6 @@ const getProjects = async (req, res) => {
     }
 };
 
-// Create a new project (Admin only)
-// const createProject = async (req, res) => {
-//     console.log('req.user:', req.user);
-//     const { name, description, collaborators } = req.body;
-//
-//     try {
-//         token = req.headers.authorization;
-//         if (!token) {
-//             return res.status(401).json({ message: 'No token provided' });
-//         }
-//
-//         // Verify the token
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//
-//         // Check if the user has admin access
-//         if (decoded.accessLevel !== 'admin') {
-//             return res.status(403).json({ message: 'Access denied. Admin only.' });
-//         }
-//         if (!req.user || !req.user._id) {
-//             return res.status(400).json({ message: 'Owner ID is missing' });
-//         }
-//
-//         const project = new Project({
-//             name,
-//             description,
-//                 ownerId: req.user.userId,// Admin's user ID
-//             collaborators,
-//         });
-//
-//         await project.save();
-//         res.status(201).json(project);
-//     } catch (error) {
-//         console.error(error.message);
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// };
 const createProject = async (req, res) => {
     const { name, description, collaborators } = req.body;
 

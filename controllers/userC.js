@@ -48,7 +48,7 @@ const loginUser = async (req, res) => {
                 accessLevel: user.accessLevel,
             },
             process.env.JWT_SECRET, // Use a secure key from your environment variables
-            { expiresIn: '0.2h' } // Token expires in 1 hour
+            { expiresIn: '0.1h' } // Token expires in 1 hour
         );
 
         // Send the token to the client
