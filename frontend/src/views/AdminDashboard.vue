@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Admin Dashboard</h1>
+    <h1>{{ title }}</h1>
     <nav>
       <ul>
         <li>
@@ -19,6 +19,13 @@
 <script>
 export default {
   name: 'AdminDashboard',
+  props: {
+    // Prop 'title' cho phép tùy chỉnh tiêu đề
+    title: {
+      type: String,           // Kiểu dữ liệu là String
+      default: 'Admin Dashboard', // Giá trị mặc định
+    },
+  },
 };
 </script>
 
