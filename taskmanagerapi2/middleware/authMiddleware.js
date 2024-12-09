@@ -34,6 +34,7 @@
 // module.exports = authMiddleware;
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 // Middleware to verify the JWT token and user access level

@@ -89,9 +89,25 @@ dotenv.config();
 // Get all projects (Admin and users can view their projects)
 const getProjects = async (req, res) => {
     try {
-        // Admins can view all projects; users can only view their own
-        const query = req.user.role === 'admin' ? {} : { ownerId: req.user.userId };
-        const projects = await Project.find(query).populate('collaborators', 'username ');
+        let query = {};
+
+        // Admin có thể xem tất cả các dự án
+        if (req.user.role === 'admin') {
+            query = {}; // Không có điều kiện gì, lấy tất cả các dự án
+        }
+        // Nếu người dùng là chủ sở hữu của dự án, lấy các dự án mà họ sở hữu
+        else if (req.user.role === 'owner') {
+            query = { ownerId: req.user.userId }; // Lấy các dự án mà người dùng là owner
+        }
+        // Nếu người dùng là collaborator, lấy các dự án mà họ là cộng tác viên
+        else if (req.user.role === 'collaborator') {
+            query = { collaborators: req.user.userId }; // Lấy các dự án mà người dùng là collaborator
+        }
+
+        // Tìm tất cả các dự án theo query
+        const projects = await Project.find(query).populate('collaborators', 'username');
+
+        // Trả về các dự án tìm thấy
         res.json(projects);
     } catch (error) {
         console.error(error.message);
@@ -99,42 +115,7 @@ const getProjects = async (req, res) => {
     }
 };
 
-// Create a new project (Admin only)
-// const createProject = async (req, res) => {
-//     console.log('req.user:', req.user);
-//     const { name, description, collaborators } = req.body;
-//
-//     try {
-//         token = req.headers.authorization;
-//         if (!token) {
-//             return res.status(401).json({ message: 'No token provided' });
-//         }
-//
-//         // Verify the token
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//
-//         // Check if the user has admin access
-//         if (decoded.accessLevel !== 'admin') {
-//             return res.status(403).json({ message: 'Access denied. Admin only.' });
-//         }
-//         if (!req.user || !req.user._id) {
-//             return res.status(400).json({ message: 'Owner ID is missing' });
-//         }
-//
-//         const project = new Project({
-//             name,
-//             description,
-//                 ownerId: req.user.userId,// Admin's user ID
-//             collaborators,
-//         });
-//
-//         await project.save();
-//         res.status(201).json(project);
-//     } catch (error) {
-//         console.error(error.message);
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// };
+
 const createProject = async (req, res) => {
     const { name, description, collaborators } = req.body;
 

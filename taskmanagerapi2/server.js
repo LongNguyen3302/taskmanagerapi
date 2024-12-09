@@ -21,9 +21,6 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 
 // Serve text.html on root
-// app.use(express.static('public'));
-// app.get('/',(req, res)=>{
-//     res.sendFile(path.join(__dirname,"public", 'text.html'))
-// })
+
 const PORT = 8080;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
